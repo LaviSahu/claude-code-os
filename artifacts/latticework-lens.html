@@ -1,0 +1,362 @@
+<title>The Latticework Lens</title>
+
+<style>
+  :root {
+    /* light — cool parchment / study */
+    --ground: #ECE9E0;
+    --panel: #F6F3EB;
+    --panel-2: #FBF9F2;
+    --line: #D8D2C4;
+    --line-soft: #E5DFD1;
+    --ink: #1B1E24;
+    --ink-soft: #464A52;
+    --ink-quiet: #7A7568;
+    --accent: #1F7D5F;      /* jade */
+    --accent-ink: #186047;
+    --tension: #A9721A;     /* warm sand — disagreement */
+    --tension-bg: rgba(169,114,26,.10);
+    --crit: #B14A38;
+    --shadow: 0 1px 2px rgba(27,30,36,.05), 0 10px 30px rgba(27,30,36,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #15181F;
+      --panel: #1D222B;
+      --panel-2: #252C37;
+      --line: #313A47;
+      --line-soft: #29303B;
+      --ink: #E9EAED;
+      --ink-soft: #A7ACB6;
+      --ink-quiet: #6E7481;
+      --accent: #43B592;
+      --accent-ink: #62CDA8;
+      --tension: #D9A44E;
+      --tension-bg: rgba(217,164,78,.12);
+      --crit: #DB705E;
+      --shadow: 0 1px 2px rgba(0,0,0,.34), 0 14px 34px rgba(0,0,0,.30);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#ECE9E0;--panel:#F6F3EB;--panel-2:#FBF9F2;--line:#D8D2C4;--line-soft:#E5DFD1;
+    --ink:#1B1E24;--ink-soft:#464A52;--ink-quiet:#7A7568;--accent:#1F7D5F;--accent-ink:#186047;
+    --tension:#A9721A;--tension-bg:rgba(169,114,26,.10);--crit:#B14A38;
+    --shadow:0 1px 2px rgba(27,30,36,.05),0 10px 30px rgba(27,30,36,.07);
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181F;--panel:#1D222B;--panel-2:#252C37;--line:#313A47;--line-soft:#29303B;
+    --ink:#E9EAED;--ink-soft:#A7ACB6;--ink-quiet:#6E7481;--accent:#43B592;--accent-ink:#62CDA8;
+    --tension:#D9A44E;--tension-bg:rgba(217,164,78,.12);--crit:#DB705E;
+    --shadow:0 1px 2px rgba(0,0,0,.34),0 14px 34px rgba(0,0,0,.30);
+  }
+
+  *{box-sizing:border-box;}
+  :root{
+    --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+    --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:1140px;margin:0 auto;padding:0 clamp(18px,4vw,44px);}
+
+  /* topbar */
+  .topbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--ground) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:52px;gap:12px;}
+  .mark{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-quiet);display:flex;align-items:center;gap:10px;}
+  .lat{display:inline-grid;grid-template-columns:repeat(3,4px);grid-auto-rows:4px;gap:2px;}
+  .lat i{background:var(--accent);border-radius:1px;display:block;width:4px;height:4px;}
+  .lat i:nth-child(2),.lat i:nth-child(4),.lat i:nth-child(6),.lat i:nth-child(8){opacity:.4;}
+  .tbtn{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+    background:transparent;border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .tbtn:hover{border-color:var(--accent);color:var(--accent-ink);}
+  .tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* header */
+  header.hero{padding:clamp(44px,7vw,84px) 0 clamp(24px,4vw,40px);}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);
+    display:inline-flex;align-items:center;gap:12px;}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--accent);}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.4rem,6vw,4.1rem);line-height:1.03;letter-spacing:-.015em;
+    margin:.42em 0 .3em;text-wrap:balance;}
+  .lede{font-size:clamp(1.05rem,2vw,1.24rem);color:var(--ink-soft);max-width:60ch;margin:0;text-wrap:pretty;}
+  .lede b{color:var(--ink);font-weight:600;}
+  blockquote.munger{margin:26px 0 0;padding:14px 20px;border-left:3px solid var(--accent);
+    font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--ink-soft);background:var(--panel);border-radius:0 10px 10px 0;}
+  blockquote.munger cite{display:block;font-style:normal;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-quiet);margin-top:8px;}
+
+  /* steps */
+  .step{margin-top:clamp(30px,5vw,50px);}
+  .steplabel{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .stepno{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--accent-ink);
+    border:1px solid var(--accent);border-radius:6px;padding:2px 8px;white-space:nowrap;}
+  .steplabel h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.3rem,2.6vw,1.7rem);margin:0;letter-spacing:-.01em;}
+  .stephint{color:var(--ink-quiet);font-size:.9rem;margin:-6px 0 0;max-width:64ch;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:clamp(18px,3vw,26px);box-shadow:var(--shadow);}
+
+  textarea,input[type=text]{width:100%;font-family:var(--sans);font-size:1rem;color:var(--ink);
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;resize:vertical;line-height:1.55;}
+  textarea::placeholder,input::placeholder{color:var(--ink-quiet);}
+  textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);}
+  .decision-in{min-height:76px;font-family:var(--serif);font-size:1.15rem;}
+
+  /* model chooser lattice */
+  .chooser{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
+  .mchip{position:relative;text-align:left;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:11px;padding:13px 14px;transition:border-color .15s,background .15s,transform .12s;}
+  .mchip:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .mchip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .mchip .mn{font-weight:650;font-size:.98rem;color:var(--ink);display:block;}
+  .mchip .md{font-family:var(--mono);font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-quiet);margin-top:4px;}
+  .mchip[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 12%,var(--panel-2));border-color:var(--accent);}
+  .mchip[aria-pressed="true"]::after{content:"✓";position:absolute;top:10px;right:12px;color:var(--accent-ink);font-weight:700;font-size:.85rem;}
+
+  .countbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap;}
+  .count{font-family:var(--mono);font-size:.76rem;color:var(--ink-quiet);letter-spacing:.04em;}
+  .count b{color:var(--accent-ink);}
+
+  /* walk cards */
+  .walk{display:flex;flex-direction:column;gap:14px;}
+  .empty{color:var(--ink-quiet);font-family:var(--mono);font-size:.82rem;padding:22px;border:1px dashed var(--line);border-radius:12px;text-align:center;}
+  .walkcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px 20px;box-shadow:var(--shadow);}
+  .walkcard .whead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+  .walkcard .wn{font-family:var(--serif);font-size:1.18rem;font-weight:600;color:var(--ink);}
+  .walkcard .wd{font-size:.9rem;color:var(--ink-soft);margin:6px 0 12px;}
+  .walkcard .probe{font-family:var(--serif);font-style:italic;color:var(--accent-ink);font-size:1rem;margin:0 0 12px;
+    padding-left:14px;border-left:2px solid var(--accent);}
+  .walkcard textarea{min-height:64px;}
+  .walkcard .drop{background:none;border:1px solid var(--line);color:var(--ink-quiet);font-family:var(--mono);font-size:.66rem;
+    letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:5px 9px;cursor:pointer;}
+  .walkcard .drop:hover{border-color:var(--crit);color:var(--crit);}
+
+  /* synthesis */
+  .synth{background:var(--tension-bg);border:1px solid var(--tension);border-radius:14px;padding:clamp(18px,3vw,26px);}
+  .synth h3{font-family:var(--serif);font-weight:600;font-size:1.25rem;margin:0 0 6px;color:var(--ink);}
+  .synth p.note{margin:0 0 14px;color:var(--ink-soft);font-size:.92rem;max-width:66ch;}
+  .synth label{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-quiet);display:block;margin:14px 0 7px;}
+
+  /* actions */
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+  .btn{font-family:var(--sans);font-weight:600;font-size:.92rem;border-radius:9px;padding:11px 18px;cursor:pointer;border:1px solid transparent;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.primary:hover{filter:brightness(1.06);}
+  @media (prefers-color-scheme:dark){.btn.primary{color:#0d1512;}}
+  :root[data-theme="dark"] .btn.primary{color:#0d1512;}
+  :root[data-theme="light"] .btn.primary{color:#fff;}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink-soft);}
+  .btn.ghost:hover{border-color:var(--ink-quiet);color:var(--ink);}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .toast{font-family:var(--mono);font-size:.78rem;color:var(--accent-ink);align-self:center;opacity:0;transition:opacity .3s;}
+  .toast.show{opacity:1;}
+
+  footer{margin-top:clamp(40px,6vw,72px);padding:26px 0 60px;border-top:1px solid var(--line);}
+  footer .attr{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:9px 13px;display:inline-block;}
+  footer .fine{margin-top:14px;font-size:.8rem;color:var(--ink-quiet);max-width:70ch;}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important;}}
+  @media(max-width:560px){.chooser{grid-template-columns:1fr 1fr;}}
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark"><span class="lat"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span> LATTICEWORK · DECISION INSTRUMENT</div>
+    <button class="tbtn" id="themebtn" type="button" aria-label="Toggle theme">Theme</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Decision Instrument · M2</span>
+    <h1>The Latticework Lens</h1>
+    <p class="lede">Run a real decision through the models — <b>naming each</b> so the reasoning is auditable. The point isn't consensus; it's finding <b>where the models disagree</b>, because that disagreement is where the clarity lives. Ends in vault-ready markdown.</p>
+    <blockquote class="munger">"You've got to have models in your head, and you've got to array your experience — both vicarious and direct — onto this latticework of models."<cite>— Charlie Munger</cite></blockquote>
+  </header>
+
+  <!-- STEP 1 -->
+  <section class="step">
+    <div class="steplabel"><span class="stepno">01</span><h2>State the decision</h2></div>
+    <p class="stephint">One sentence. The sharper the framing, the sharper the lens. Reserve the deep run for big or hard-to-reverse calls.</p>
+    <div class="card" style="margin-top:14px">
+      <textarea id="decision" class="decision-in" placeholder="e.g. Should I build the Zuloma product bundle now, or ship two more articles first?"></textarea>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <div class="steplabel"><span class="stepno">02</span><h2>Choose your models</h2></div>
+    <p class="stephint">Pick 2–4 that are genuinely relevant — reach across disciplines, and include the non-obvious one. More isn't better; relevant is better.</p>
+    <div class="card" style="margin-top:14px">
+      <div class="chooser" id="chooser"></div>
+      <div class="countbar">
+        <span class="count"><b id="selcount">0</b> selected · aim for 2–4</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step">
+    <div class="steplabel"><span class="stepno">03</span><h2>Walk each model</h2></div>
+    <p class="stephint">Answer the probe in each model's own voice. Write what the model actually says about <em>this</em> decision, not what you already want to do.</p>
+    <div class="walk" id="walk" style="margin-top:14px">
+      <div class="empty" id="walkempty">Select models above to begin the walk.</div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step">
+    <div class="steplabel"><span class="stepno">04</span><h2>Find the disagreement, then decide</h2></div>
+    <div class="synth" style="margin-top:14px">
+      <h3>Where do the models disagree?</h3>
+      <p class="note">If every model points the same way, the decision was easy and you didn't need the lens. Name the real tension — which two models pull apart, and which one you're choosing to weight more, and why.</p>
+      <label for="tension">The tension</label>
+      <textarea id="tension" placeholder="e.g. Base rates say most solo products flop → wait. Compounding says the bundle is the asset that earns while I sleep → build. The disagreement is timing vs. leverage."></textarea>
+      <label for="verdict">The call</label>
+      <textarea id="verdict" placeholder="What you're deciding, which model you weighted, and the margin of safety you're keeping."></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="copybtn" type="button">Copy as markdown for the vault</button>
+      <button class="btn ghost" id="clearbtn" type="button">Clear all</button>
+      <span class="toast" id="toast">Copied — paste into the vault.</span>
+    </div>
+  </section>
+
+  <footer>
+    <div class="attr">[ Claude Pro ]</div>
+    <p class="fine">The Latticework Lens · companion to the Operator's Playbook (M2). Your notes autosave in this browser only. Export copies a clean markdown block ready for <code>[[decisions]]</code> in the vault.</p>
+  </footer>
+</div>
+
+<script>
+  var MODELS = [
+    {id:'inversion', n:'Inversion', d:'Discipline: math / problem-solving', def:'Instead of asking how to succeed, ask how to fail — then avoid that.', probe:'What would reliably make this fail? Am I actively avoiding those paths?'},
+    {id:'second', n:'Second-Order Effects', d:'Discipline: systems', def:'Consequences have consequences. The first effect is rarely the important one.', probe:'And then what? What does this cause two or three steps downstream?'},
+    {id:'oppcost', n:'Opportunity Cost', d:'Discipline: economics', def:'The true cost of anything is the best alternative you give up for it.', probe:'What am I forgoing by choosing this? Is there a higher-leverage use of the same time or capital?'},
+    {id:'baserate', n:'Base Rates', d:'Discipline: statistics', def:'Start from how often this works for everyone, not from your inside view.', probe:'What is the outside-view success rate for things like this? Am I the exception, really?'},
+    {id:'incentives', n:'Incentives', d:'Discipline: psychology', def:'"Show me the incentive and I will show you the outcome."', probe:'Who benefits from each option — and how is that biasing the advice I am hearing (including my own)?'},
+    {id:'margin', n:'Margin of Safety', d:'Discipline: engineering', def:'Assume you are partly wrong; build in room to be wrong and survive.', probe:'If my key assumption is off by 2×, do I still come out intact?'},
+    {id:'circle', n:'Circle of Competence', d:'Discipline: self-knowledge', def:'Know the boundary of what you truly understand, and operate inside it.', probe:'Is this genuinely inside what I understand — or am I fooling myself near the edge?'},
+    {id:'bias', n:'Key Misjudgment Biases', d:'Discipline: psychology', def:'Commitment, social proof, recency, confirmation — the usual saboteurs.', probe:'Which single bias is most likely steering me wrong here right now?'},
+    {id:'prob', n:'Probabilistic Thinking', d:'Discipline: decision theory', def:'Think in odds and expected value, not false certainties.', probe:'What are the rough odds of each outcome, and what is the expected value across them?'},
+    {id:'firstprin', n:'First Principles', d:'Discipline: physics', def:'Reason up from what is actually true, not by analogy to how it is usually done.', probe:'Ignoring convention, what do the fundamentals of this situation actually demand?'},
+    {id:'map', n:'Map ≠ Territory', d:'Discipline: epistemics', def:'The model is not the reality; watch for where it quietly breaks.', probe:'Where might my mental map diverge from the real terrain once I act?'},
+    {id:'compound', n:'Compounding', d:'Discipline: finance', def:'Small repeated edges become large outcomes — the engine behind the goal.', probe:'Does this compound, or is it a one-off? Am I protecting the thing that compounds?'}
+  ];
+
+  var KEY='latticework-lens-v1';
+  var state={decision:'',selected:[],notes:{},tension:'',verdict:''};
+  var byId={}; MODELS.forEach(function(m){byId[m.id]=m;});
+
+  try{var saved=JSON.parse(localStorage.getItem(KEY));if(saved)state=Object.assign(state,saved);}catch(e){}
+
+  var chooser=document.getElementById('chooser');
+  var walk=document.getElementById('walk');
+  var walkempty=document.getElementById('walkempty');
+  var selcount=document.getElementById('selcount');
+
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+  function renderChooser(){
+    chooser.innerHTML='';
+    MODELS.forEach(function(m){
+      var b=document.createElement('button');
+      b.type='button';b.className='mchip';
+      b.setAttribute('aria-pressed', state.selected.indexOf(m.id)>-1?'true':'false');
+      b.innerHTML='<span class="mn">'+m.n+'</span><span class="md">'+m.d.replace('Discipline: ','')+'</span>';
+      b.addEventListener('click',function(){toggle(m.id);});
+      chooser.appendChild(b);
+    });
+    selcount.textContent=state.selected.length;
+  }
+
+  function toggle(id){
+    var i=state.selected.indexOf(id);
+    if(i>-1){state.selected.splice(i,1);}
+    else{state.selected.push(id);}
+    save();renderChooser();renderWalk();
+  }
+
+  function renderWalk(){
+    var ex=walk.querySelectorAll('.walkcard');ex.forEach(function(n){n.remove();});
+    if(state.selected.length===0){walkempty.style.display='';return;}
+    walkempty.style.display='none';
+    state.selected.forEach(function(id){
+      var m=byId[id];if(!m)return;
+      var c=document.createElement('div');c.className='walkcard';
+      c.innerHTML=
+        '<div class="whead"><span class="wn">'+m.n+'</span>'+
+        '<button class="drop" type="button" aria-label="Remove '+m.n+'">drop</button></div>'+
+        '<p class="wd">'+m.def+'</p>'+
+        '<p class="probe">'+m.probe+'</p>'+
+        '<textarea placeholder="What this model says about the decision…"></textarea>';
+      var ta=c.querySelector('textarea');
+      ta.value=state.notes[id]||'';
+      ta.addEventListener('input',function(){state.notes[id]=ta.value;save();});
+      c.querySelector('.drop').addEventListener('click',function(){toggle(id);});
+      walk.appendChild(c);
+    });
+  }
+
+  var decision=document.getElementById('decision');
+  var tension=document.getElementById('tension');
+  var verdict=document.getElementById('verdict');
+  decision.value=state.decision;tension.value=state.tension;verdict.value=state.verdict;
+  decision.addEventListener('input',function(){state.decision=decision.value;save();});
+  tension.addEventListener('input',function(){state.tension=tension.value;save();});
+  verdict.addEventListener('input',function(){state.verdict=verdict.value;save();});
+
+  // export
+  function toMarkdown(){
+    var d=state.decision.trim()||'(decision not stated)';
+    var out='## Decision · latticework lens\n\n**'+d+'**\n\n';
+    if(state.selected.length){
+      out+='### Models walked\n\n';
+      state.selected.forEach(function(id){
+        var m=byId[id];var note=(state.notes[id]||'').trim()||'—';
+        out+='- **'+m.n+'** — '+note+'\n';
+      });
+      out+='\n';
+    }
+    if(state.tension.trim()){out+='### The disagreement\n\n'+state.tension.trim()+'\n\n';}
+    if(state.verdict.trim()){out+='### The call\n\n'+state.verdict.trim()+'\n';}
+    return out;
+  }
+
+  var toast=document.getElementById('toast');
+  function ping(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show');},2200);}
+
+  document.getElementById('copybtn').addEventListener('click',function(){
+    var md=toMarkdown();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(md).then(function(){ping('Copied — paste into the vault.');},function(){fallback(md);});
+    }else{fallback(md);}
+  });
+  function fallback(md){
+    var t=document.createElement('textarea');t.value=md;document.body.appendChild(t);t.select();
+    try{document.execCommand('copy');ping('Copied — paste into the vault.');}catch(e){ping('Copy failed — select manually.');}
+    document.body.removeChild(t);
+  }
+
+  document.getElementById('clearbtn').addEventListener('click',function(){
+    if(!confirm('Clear the decision, all model notes, and the synthesis?'))return;
+    state={decision:'',selected:[],notes:{},tension:'',verdict:''};save();
+    decision.value='';tension.value='';verdict.value='';
+    renderChooser();renderWalk();ping('Cleared.');
+  });
+
+  // theme
+  var root=document.documentElement;
+  document.getElementById('themebtn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    root.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+
+  renderChooser();renderWalk();
+</script>

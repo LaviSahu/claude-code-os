@@ -1,0 +1,3 @@
+#!/bin/sh
+# version control for ~/.claude config (bare-ish repo pattern; ~/.claude is intentionally not a .git worktree)
+exec git --git-dir="$HOME/.claude/config.git" --work-tree="$HOME/.claude" "$@"

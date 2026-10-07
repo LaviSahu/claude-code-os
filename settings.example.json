@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/session-capture.py",
+            "timeout": 60,
+            "statusMessage": "Filing session to vault…"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,305 @@
+<title>The Dispatch Cockpit</title>
+
+<style>
+  :root{
+    /* light */
+    --ground:#E9EBEC;--panel:#F4F5F6;--panel-2:#FAFBFB;--line:#D3D7DA;--line-soft:#E1E4E6;
+    --ink:#12161A;--ink-soft:#41474D;--ink-quiet:#727A81;
+    --accent:#0E7C8B;--accent-ink:#0A5E6A;      /* signal cyan-teal */
+    --go:#2E7D46;--hold:#B07A12;--stop:#B33A2B;
+    --shadow:0 1px 2px rgba(18,22,26,.05),0 10px 28px rgba(18,22,26,.07);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0E1216;--panel:#161C22;--panel-2:#1E252D;--line:#2A333C;--line-soft:#222A32;
+      --ink:#E7EBEE;--ink-soft:#A2AAB2;--ink-quiet:#69727B;
+      --accent:#33C2D4;--accent-ink:#57D3E3;
+      --go:#5BB874;--hold:#D9A64E;--stop:#DE6C5C;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 32px rgba(0,0,0,.34);
+    }
+  }
+  :root[data-theme="light"]{--ground:#E9EBEC;--panel:#F4F5F6;--panel-2:#FAFBFB;--line:#D3D7DA;--line-soft:#E1E4E6;
+    --ink:#12161A;--ink-soft:#41474D;--ink-quiet:#727A81;--accent:#0E7C8B;--accent-ink:#0A5E6A;
+    --go:#2E7D46;--hold:#B07A12;--stop:#B33A2B;--shadow:0 1px 2px rgba(18,22,26,.05),0 10px 28px rgba(18,22,26,.07);}
+  :root[data-theme="dark"]{--ground:#0E1216;--panel:#161C22;--panel-2:#1E252D;--line:#2A333C;--line-soft:#222A32;
+    --ink:#E7EBEE;--ink-soft:#A2AAB2;--ink-quiet:#69727B;--accent:#33C2D4;--accent-ink:#57D3E3;
+    --go:#5BB874;--hold:#D9A64E;--stop:#DE6C5C;--shadow:0 1px 2px rgba(0,0,0,.4),0 14px 32px rgba(0,0,0,.34);}
+
+  *{box-sizing:border-box;}
+  :root{--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .wrap{max-width:940px;margin:0 auto;padding:0 clamp(18px,4vw,40px);}
+
+  .topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:50px;gap:12px;}
+  .mark{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-quiet);display:flex;align-items:center;gap:10px;}
+  .blip{width:8px;height:8px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);}
+  .tbtn{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+    background:transparent;border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .tbtn:hover{border-color:var(--accent);color:var(--accent-ink);}
+  .tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  header.hero{padding:clamp(40px,6vw,72px) 0 clamp(20px,3vw,34px);}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);
+    display:inline-flex;align-items:center;gap:12px;}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--accent);}
+  h1{font-weight:800;font-size:clamp(2.1rem,5.5vw,3.4rem);line-height:1.04;letter-spacing:-.02em;margin:.42em 0 .28em;text-wrap:balance;}
+  .lede{font-size:clamp(1.02rem,2vw,1.18rem);color:var(--ink-soft);max-width:60ch;margin:0;}
+  .lede b{color:var(--ink);font-weight:650;}
+
+  .console{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+    padding:clamp(18px,3vw,28px);margin-top:8px;}
+  .qhead{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-quiet);margin:0 0 4px;}
+  .qtitle{font-size:1.2rem;font-weight:700;margin:0 0 16px;letter-spacing:-.01em;}
+
+  .router{display:flex;flex-direction:column;gap:10px;}
+  .qrow{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel-2);}
+  .qrow .q{width:100%;text-align:left;background:none;border:0;cursor:pointer;color:var(--ink);
+    display:flex;align-items:center;gap:14px;padding:15px 16px;font-family:var(--sans);font-size:1rem;}
+  .qrow .q:hover{background:color-mix(in srgb,var(--accent) 7%,transparent);}
+  .qrow .q:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  .qrow .idx{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--accent-ink);
+    border:1px solid var(--line);border-radius:6px;padding:2px 8px;min-width:30px;text-align:center;}
+  .qrow .qtext{flex:1;}
+  .qrow .qtext b{font-weight:650;}
+  .qrow .yn{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-quiet);
+    border:1px solid var(--line);border-radius:20px;padding:4px 12px;}
+  .qrow.active{border-color:var(--accent);}
+  .qrow.active .q{background:color-mix(in srgb,var(--accent) 10%,transparent);}
+  .qrow.answered-yes .yn{color:var(--go);border-color:var(--go);}
+
+  .verdict{margin-top:22px;border-radius:16px;border:1px solid var(--line);overflow:hidden;display:none;}
+  .verdict.show{display:block;}
+  .vstrip{padding:16px 20px;display:flex;align-items:center;gap:14px;}
+  .vstrip .light{width:14px;height:14px;border-radius:50%;flex:none;}
+  .vlabel{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;}
+  .vbody{padding:18px 20px;background:var(--panel);}
+  .vdest{font-size:1.35rem;font-weight:800;letter-spacing:-.01em;margin:0 0 6px;}
+  .vwhy{color:var(--ink-soft);margin:0 0 14px;font-size:.95rem;}
+  .vcmd{font-family:var(--mono);font-size:.86rem;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
+    padding:12px 14px;color:var(--accent-ink);overflow-x:auto;white-space:pre;}
+
+  /* go/no-go color classes on verdict */
+  .v-offload .vstrip{background:color-mix(in srgb,var(--go) 14%,transparent);}
+  .v-offload .light{background:var(--go);}   .v-offload .vlabel{color:var(--go);}
+  .v-paid .vstrip{background:color-mix(in srgb,var(--hold) 14%,transparent);}
+  .v-paid .light{background:var(--hold);}     .v-paid .vlabel{color:var(--hold);}
+
+  /* attribution generator */
+  .attrgen{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:clamp(18px,3vw,28px);}
+  .attrgen h2{font-size:1.15rem;font-weight:750;margin:0 0 4px;letter-spacing:-.01em;}
+  .attrgen p.sub{margin:0 0 16px;color:var(--ink-quiet);font-size:.9rem;max-width:64ch;}
+  .toggles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+  .tg{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;
+    background:var(--panel-2);cursor:pointer;}
+  .tg:hover{border-color:var(--accent);}
+  .tg input{position:absolute;opacity:0;width:0;height:0;}
+  .tg .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--ink-quiet);flex:none;display:grid;place-items:center;transition:.12s;}
+  .tg input:checked + .box{background:var(--accent);border-color:var(--accent);}
+  .tg input:checked + .box::after{content:"✓";color:#fff;font-size:.8rem;font-weight:700;}
+  :root[data-theme="dark"] .tg input:checked + .box::after{color:#08131a;}
+  .tg input:focus-visible + .box{outline:2px solid var(--accent);outline-offset:2px;}
+  .tg .lbl{font-size:.92rem;}
+  .tg .lbl small{display:block;color:var(--ink-quiet);font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;margin-top:2px;}
+
+  .attrout{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .attrcode{flex:1;min-width:260px;font-family:var(--mono);font-size:.86rem;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:13px 15px;color:var(--ink);overflow-x:auto;white-space:pre;}
+  .flag{color:var(--stop);}
+  .btn{font-family:var(--sans);font-weight:600;font-size:.9rem;border-radius:9px;padding:11px 16px;cursor:pointer;border:1px solid transparent;background:var(--accent);color:#fff;white-space:nowrap;}
+  :root[data-theme="dark"] .btn{color:#08131a;}
+  .btn:hover{filter:brightness(1.07);}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .toast{font-family:var(--mono);font-size:.76rem;color:var(--go);opacity:0;transition:opacity .3s;}
+  .toast.show{opacity:1;}
+  .resetlink{background:none;border:0;color:var(--ink-quiet);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
+    text-transform:uppercase;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:14px;}
+  .resetlink:hover{color:var(--accent-ink);}
+
+  footer{margin-top:clamp(38px,6vw,66px);padding:24px 0 56px;border-top:1px solid var(--line);}
+  footer .attr{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:9px 13px;display:inline-block;}
+  footer .fine{margin-top:14px;font-size:.8rem;color:var(--ink-quiet);max-width:70ch;}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important;}}
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark"><span class="blip"></span> DISPATCH · ROUTING CONSOLE</div>
+    <button class="tbtn" id="themebtn" type="button" aria-label="Toggle theme">Theme</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Execution Instrument · M3</span>
+    <h1>The Dispatch Cockpit</h1>
+    <p class="lede">Before the work: <b>route it</b>. Walk the HARD RULES top-to-bottom — <b>first match wins</b> — and the console calls the destination. Then generate the mandatory attribution footer so every response declares who did the work.</p>
+  </header>
+
+  <!-- ROUTER -->
+  <section class="console">
+    <p class="qhead">Pre-flight · dispatch ladder</p>
+    <h2 class="qtitle">What kind of task is this?</h2>
+    <div class="router" id="router"></div>
+  </section>
+
+  <div class="verdict" id="verdict">
+    <div class="vstrip"><span class="light"></span><span class="vlabel" id="vlabel"></span></div>
+    <div class="vbody">
+      <p class="vdest" id="vdest"></p>
+      <p class="vwhy" id="vwhy"></p>
+      <div class="vcmd" id="vcmd"></div>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTION GENERATOR -->
+  <section class="attrgen">
+    <h2>Attribution footer</h2>
+    <p class="sub">Standing order: every substantive response ends with a one-line footer naming who answered which part. Toggle what you used; if the paid plan did work the ladder said to offload, the footer flags it — unprompted.</p>
+    <div class="toggles" id="toggles"></div>
+    <div class="attrout">
+      <code class="attrcode" id="attrcode">_[ Claude Pro ]_</code>
+      <button class="btn" id="copyattr" type="button">Copy footer</button>
+      <span class="toast" id="toast">Copied.</span>
+    </div>
+    <button class="resetlink" id="reset" type="button">Reset console</button>
+  </section>
+
+  <footer>
+    <div class="attr">[ Claude Pro ]</div>
+    <p class="fine">The Dispatch Cockpit · companion to the Operator's Playbook (M3). Encodes the free-tier dispatch HARD RULES and the model-attribution convention. No data leaves this browser.</p>
+  </footer>
+</div>
+
+<script>
+  // dispatch ladder — first match wins
+  var RULES=[
+    {q:'A <b>coding</b> task? (writing/editing files, scripts, debugging, refactoring)', dest:'glm-do',
+      cls:'v-offload', label:'Offload · free tier',
+      title:'→ glm-do', why:'Do not write code inline on the paid plan. Exception: one-line edits where dispatch costs more than doing it.',
+      cmd:'glm-do "<task description>"'},
+    {q:'A <b>research / web lookup</b>? ("what is X", find tools, market check, verdicts)', dest:'gemini',
+      cls:'v-offload', label:'Offload · free tier',
+      title:'→ Gemini MCP (grounded search)', why:'Live grounding first. Fallback to the fast/quality LLM CLI if the MCP is unavailable.',
+      cmd:'mcp: gemini-search   ·   fallback: llm -T fast|quality "<query>"'},
+    {q:'<b>Long writing / analysis / draft</b> over ~400 words?', dest:'llm-quality',
+      cls:'v-offload', label:'Offload · free tier',
+      title:'→ llm -T quality', why:'Route the heavy prose off the paid plan. Exception: it needs file tools, or multi-turn reasoning that depends on this session’s context.',
+      cmd:'llm -T quality "<prompt>"      # tiers: fast · quality · reason · bigdoc'},
+    {q:'A <b>vault / file operation</b>? (Obsidian, reading/writing files, tool access)', dest:'paid',
+      cls:'v-paid', label:'Paid plan · justified',
+      title:'Stay on the paid plan', why:'It needs tool access the free tier can’t reach. This is a sanctioned use of the plan.',
+      cmd:'— proceed here —'},
+    {q:'A <b>short conversational reply</b> under ~150 words?', dest:'paid',
+      cls:'v-paid', label:'Paid plan · justified',
+      title:'Stay on the paid plan', why:'Too small to be worth a dispatch round-trip.',
+      cmd:'— proceed here —'},
+    {q:'Did I say <b>"you answer" / "your take"</b>?', dest:'paid',
+      cls:'v-paid', label:'Paid plan · justified',
+      title:'Stay on the paid plan', why:'Explicitly asked for the session model’s own judgement.',
+      cmd:'— proceed here —'}
+  ];
+
+  var router=document.getElementById('router');
+  var vEl=document.getElementById('verdict');
+  var answeredIdx=-1;
+
+  RULES.forEach(function(r,i){
+    var row=document.createElement('div');row.className='qrow';row.dataset.i=i;
+    row.innerHTML='<button class="q" type="button"><span class="idx">'+(i+1)+'</span>'+
+      '<span class="qtext">'+r.q+'</span><span class="yn">Yes → match</span></button>';
+    row.querySelector('.q').addEventListener('click',function(){pick(i);});
+    router.appendChild(row);
+  });
+
+  function pick(i){
+    answeredIdx=i;
+    Array.prototype.forEach.call(router.children,function(row,j){
+      row.className='qrow'+(j===i?' active answered-yes':'');
+    });
+    var r=RULES[i];
+    vEl.className='verdict show '+r.cls;
+    document.getElementById('vlabel').textContent=r.label;
+    document.getElementById('vdest').textContent=r.title;
+    document.getElementById('vwhy').textContent=r.why;
+    document.getElementById('vcmd').textContent=r.cmd;
+    vEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    // if a paid verdict but an offload option was skipped above, sync the flag toggle
+    syncFlagFromVerdict();
+  }
+
+  // attribution generator
+  var PARTS=[
+    {id:'claude', label:'Claude Pro', sub:'orchestration / synthesis', text:'Claude Pro', on:true},
+    {id:'gemini', label:'Gemini MCP', sub:'research / web', text:'Research: Gemini MCP', on:false},
+    {id:'glm', label:'GLM-5.2 (glm-do)', sub:'code / dispatch', text:'Code: GLM-5.2 (glm-do)', on:false},
+    {id:'llm', label:'llm CLI', sub:'long writing / analysis', text:'Writing: llm -T quality', on:false},
+    {id:'flag', label:'Offload flag', sub:'paid did offload-worthy work', text:'', on:false, flag:true}
+  ];
+  var togWrap=document.getElementById('toggles');
+  PARTS.forEach(function(p){
+    var l=document.createElement('label');l.className='tg';
+    l.innerHTML='<input type="checkbox" '+(p.on?'checked':'')+'><span class="box"></span>'+
+      '<span class="lbl">'+p.label+'<small>'+p.sub+'</small></span>';
+    var cb=l.querySelector('input');cb.checked=p.on;
+    cb.addEventListener('change',function(){p.on=cb.checked;renderAttr();});
+    p._cb=cb;
+    togWrap.appendChild(l);
+  });
+
+  function renderAttr(){
+    var bits=PARTS.filter(function(p){return p.on&&!p.flag&&p.text;}).map(function(p){return p.text;});
+    if(bits.length===0)bits=['Claude Pro'];
+    var s='_[ '+bits.join(' · ')+' ]_';
+    var flagOn=PARTS.filter(function(p){return p.flag;})[0].on;
+    var codeEl=document.getElementById('attrcode');
+    if(flagOn){
+      codeEl.innerHTML='_[ '+bits.join(' · ')+' ]_\n<span class="flag">⚑ offload flag: paid plan used where the ladder said offload.</span>';
+    }else{
+      codeEl.textContent=s;
+    }
+  }
+  function syncFlagFromVerdict(){
+    // gentle nudge: if verdict is offload, remind that code/research toggles likely apply — no auto-change
+  }
+
+  document.getElementById('copyattr').addEventListener('click',function(){
+    var bits=PARTS.filter(function(p){return p.on&&!p.flag&&p.text;}).map(function(p){return p.text;});
+    if(bits.length===0)bits=['Claude Pro'];
+    var s='_[ '+bits.join(' · ')+' ]_';
+    var flagOn=PARTS.filter(function(p){return p.flag;})[0].on;
+    if(flagOn)s+='\n(offload flag: paid plan used where the ladder said offload.)';
+    copy(s);
+  });
+  var toast=document.getElementById('toast');
+  function ping(m){toast.textContent=m;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show');},2000);}
+  function copy(s){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(function(){ping('Copied.');},function(){fb(s);});
+    }else{fb(s);}
+  }
+  function fb(s){var t=document.createElement('textarea');t.value=s;document.body.appendChild(t);t.select();
+    try{document.execCommand('copy');ping('Copied.');}catch(e){ping('Select manually.');}document.body.removeChild(t);}
+
+  document.getElementById('reset').addEventListener('click',function(){
+    answeredIdx=-1;vEl.className='verdict';
+    Array.prototype.forEach.call(router.children,function(row){row.className='qrow';});
+    PARTS.forEach(function(p){p.on=(p.id==='claude');p._cb.checked=p.on;});
+    renderAttr();
+  });
+
+  var root=document.documentElement;
+  document.getElementById('themebtn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur)cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    root.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+
+  renderAttr();
+</script>

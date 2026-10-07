@@ -1,0 +1,4 @@
+.DS_Store
+.memsearch/
+# Local memory/search index — must never be published
+# Session memory / local caches — never commit
